@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Erlebnis – Die Zeit danach</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,300&display=swap');
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0a0a0f;
+            --surface: #14141f;
+            --border: rgba(255, 255, 255, 0.06);
+            --text: #e8e8ed;
+            --text-muted: #7a7a8e;
+            --accent: #4f8fff;
+            --accent-glow: rgba(79, 143, 255, 0.15);
+            --radius: 20px;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            overflow-x: hidden;
+        }
+
+        /* Subtle background grain */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(79, 143, 255, 0.05) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .card {
+            position: relative;
+            z-index: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            max-width: 420px;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: 0 0 80px rgba(79, 143, 255, 0.04),
+                        0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: fadeUp 0.6s ease-out;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .preview-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: linear-gradient(135deg, #111119 0%, #0d0d15 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .preview-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Fallback when no image is loaded yet */
+        .preview-container .placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .placeholder svg {
+            width: 48px;
+            height: 48px;
+            opacity: 0.3;
+        }
+
+        .content {
+            padding: 28px 28px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent-glow);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 100px;
+            width: fit-content;
+        }
+
+        .badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+        }
+
+        .description {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        /* AR Button – styled as Apple-like CTA */
+        .ar-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 16px 24px;
+            background: var(--accent);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .ar-link:hover {
+            background: #6da0ff;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(79, 143, 255, 0.3);
+        }
+
+        .ar-link:active {
+            transform: scale(0.98);
+        }
+
+        .ar-link svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .hint {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 300;
+            line-height: 1.5;
+        }
+
+        .hint .icon {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 2px;
+        }
+
+        /* Non-AR fallback message */
+        .fallback {
+            display: none;
+            text-align: center;
+            padding: 16px;
+            background: rgba(255, 200, 50, 0.08);
+            border: 1px solid rgba(255, 200, 50, 0.15);
+            border-radius: 12px;
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <!-- Vorschaubild – ersetze preview.jpg mit deinem eigenen Bild -->
+        <div class="preview-container">
+            <a id="ar-anchor" rel="ar" href="Bombe.usdz">
+                <img src="preview.jpg" alt="3D-Modell Vorschau"
+                     onerror="this.parentElement.innerHTML='<div class=placeholder><svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot;><path d=&quot;M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z&quot;/><polyline points=&quot;3.27 6.96 12 12.01 20.73 6.96&quot;/><line x1=&quot;12&quot; y1=&quot;22.08&quot; x2=&quot;12&quot; y2=&quot;12&quot;/></svg><span>3D-Vorschau</span></div>'">
+            </a>
+        </div>
+
+        <div class="content">
+            <div class="badge">Augmented Reality</div>
+
+            <h1>Die Zeit danach</h1>
+
+            <p class="description">
+                Erlebe dieses 3D-Objekt in deiner Umgebung. Tippe auf den Button, 
+                um die AR-Ansicht zu starten.
+            </p>
+
+            <!-- AR-Button für Geräte ohne automatischen AR Quick Look -->
+            <a class="ar-link" id="ar-button" href="Bombe.usdz" rel="ar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                    <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+                In AR ansehen
+            </a>
+
+            <!-- Fallback-Hinweis für nicht-unterstützte Geräte -->
+            <div class="fallback" id="fallback">
+                AR Quick Look wird nur auf iPhone und iPad unterstützt.<br>
+                Bitte öffne diese Seite auf einem iOS-Gerät.
+            </div>
+
+            <p class="hint">
+                <span class="icon">📱</span> Funktioniert auf iPhone &amp; iPad mit iOS 12+
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Detect AR Quick Look support
+        const isAR = document.createElement('a');
+        isAR.relList && isAR.relList.supports && isAR.relList.supports('ar');
+        
+        const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || 
+                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        
+        if (!isIOS) {
+            document.getElementById('fallback').style.display = 'block';
+            document.getElementById('ar-button').style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>
